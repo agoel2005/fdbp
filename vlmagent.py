@@ -8,9 +8,6 @@ from PIL import Image
 import numpy as np
 import pandas as pd 
 import gymnasium as gym
-import torch
-import torch.nn as nn
-import torch.optim as optim
 import numpy as np
 import heapq
 import time

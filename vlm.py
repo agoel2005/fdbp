@@ -8,9 +8,6 @@ print(sys.path)
 
 
 import gymnasium as gym
-import torch
-import torch.nn as nn
-import torch.optim as optim
 import numpy as np
 import heapq
 import time
@@ -23,9 +20,6 @@ from vlmagent import VLMAgent, AStarAgent
 # Set up logging
 logging.basicConfig(filename='agent_training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
 logger = logging.getLogger()
-
-torch.manual_seed(42)
-
 
 # Environment setup
 env_human = FullyObsWrapper(gym.make("MiniGrid-Empty-5x5-v0", render_mode="human")) #"MiniGrid-Fetch-8x8-N3-v0"
