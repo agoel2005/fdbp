@@ -1,6 +1,6 @@
 from VLM2Vec.src.model import MMEBModel
 from VLM2Vec.src.arguments import ModelArguments
-from VLM2Vec.src.utils import load_processor
+from VLM2Vec.src.model_utils import load_processor
 
 import torch
 from transformers import HfArgumentParser, AutoProcessor
