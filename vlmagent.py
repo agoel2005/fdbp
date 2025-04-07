@@ -31,7 +31,7 @@ class VLMAgent:
         self.processor = load_processor(self.model_args)
         self.model = MMEBModel.load(self.model_args)
         self.model.eval()
-        self.model = self.model.to('mps', dtype=torch.bfloat16)
+        self.model = self.model.to('cuda:0', dtype=torch.bfloat16)
     
     def extract_state(self, image):
         prompt="You are in a minigrid environment. You are given an image of what the environment looks like. Describe the environment in context to how far the player is from the goal state."
