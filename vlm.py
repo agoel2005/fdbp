@@ -2,7 +2,9 @@ import sys
 import os
 
 # Add the VLM2Vec directory to the Python path
+print(sys.path)
 sys.path.append(os.path.join(os.path.dirname(__file__), 'VLM2Vec'))
+print(sys.path)
 
 
 import gymnasium as gym
