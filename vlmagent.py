@@ -16,11 +16,14 @@ from tqdm import tqdm
 from minigrid.wrappers import FullyObsWrapper
 import pandas as pd
 from PIL import Image
+import os
 
 class VLMAgent:
     def __init__(self):
-        self.model_args = ModelArguments(
-            model_name='Qwen/Qwen2-VL-2B-Instruct',  # Can remain if used just for metadata
+        os.environ["TRANSFORMERS_OFFLINE"] = "1"
+        os.environ["HF_HUB_OFFLINE"] = "1"
+        self.model_args = ModelArguments(   
+            model_name='./vlm2vec_qwen2vl_2b',  # Can remain if used just for metadata
             checkpoint_path='./vlm2vec_qwen2vl_2b',  # Local path to downloaded model
             pooling='last',
             normalize=True,
