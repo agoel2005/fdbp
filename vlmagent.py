@@ -1,6 +1,6 @@
 from VLM2Vec.src.model import MMEBModel
 from VLM2Vec.src.arguments import ModelArguments
-from VLM2Vec.src.model_utils import load_processor
+from VLM2Vec.src.model_utils import load_processor, QWEN2_VL, vlm_image_tokens
 
 import torch
 from transformers import HfArgumentParser, AutoProcessor
@@ -17,18 +17,21 @@ from minigrid.wrappers import FullyObsWrapper
 import pandas as pd
 from PIL import Image
 
+
 class VLMAgent:
     def __init__(self):
         self.model_args = ModelArguments(
-            model_name='TIGER-Lab/VLM2Vec-LLaVa-Next',
-            pooling='last',
-            normalize=True,
-            model_backbone='llava_next',
-            num_crops=16)
+        model_name='Qwen/Qwen2-VL-2B-Instruct',
+        checkpoint_path='TIGER-Lab/VLM2Vec-Qwen2VL-2B',
+        pooling='last',
+        normalize=True,
+        model_backbone='qwen2_vl',
+        lora=True)
+
         self.processor = load_processor(self.model_args)
         self.model = MMEBModel.load(self.model_args)
+        self.model = self.model.to('mps', dtype=torch.bfloat16)
         self.model.eval()
-        self.model = self.model.to('cuda:0', dtype=torch.bfloat16)
     
     def extract_state(self, image):
         prompt="You are in a minigrid environment. You are given an image of what the environment looks like. Describe the environment in context to how far the player is from the goal state."
