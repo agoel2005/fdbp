@@ -30,7 +30,7 @@ class VLMAgent:
 
         self.processor = load_processor(self.model_args)
         self.model = MMEBModel.load(self.model_args)
-        self.model = self.model.to('mps', dtype=torch.bfloat16)
+        self.model = self.model.to('cuda', dtype=torch.bfloat16)
         self.model.eval()
     
     def extract_state(self, image):
