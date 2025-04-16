@@ -16,7 +16,16 @@ from tqdm import tqdm
 from minigrid.wrappers import FullyObsWrapper
 import pandas as pd
 from PIL import Image
+from transformers import Qwen2VLImageProcessor
 
+# Save original method
+_original_from_pretrained = Qwen2VLImageProcessor.from_pretrained
+
+# Monkey-patch
+def patched_from_pretrained(path, *args, **kwargs):
+    return _original_from_pretrained('./vlm2vec_qwen2vl_2b', *args, local_files_only=True, **kwargs)
+
+Qwen2VLImageProcessor.from_pretrained = patched_from_pretrained
 
 class VLMAgent:
     def __init__(self):
