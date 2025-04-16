@@ -21,15 +21,19 @@ from PIL import Image
 class VLMAgent:
     def __init__(self):
         self.model_args = ModelArguments(
-        model_name='Qwen/Qwen2-VL-2B-Instruct',
-        checkpoint_path='TIGER-Lab/VLM2Vec-Qwen2VL-2B',
-        pooling='last',
-        normalize=True,
-        model_backbone='qwen2_vl',
-        lora=True)
+            model_name='Qwen/Qwen2-VL-2B-Instruct',  # Can remain if used just for metadata
+            checkpoint_path='./vlm2vec_qwen2vl_2b',  # Local path to downloaded model
+            pooling='last',
+            normalize=True,
+            model_backbone='qwen2_vl',
+            lora=True
+        )
 
+        # Load processor and model from local path
         self.processor = load_processor(self.model_args)
         self.model = MMEBModel.load(self.model_args)
+
+        # Send to GPU with bf16
         self.model = self.model.to('cuda', dtype=torch.bfloat16)
         self.model.eval()
     
