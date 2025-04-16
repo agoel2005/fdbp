@@ -22,8 +22,8 @@
   "resample": 3,
   "rescale_factor": 0.00392156862745098,
   "size": {
-    "max_pixels": 12845056,
-    "min_pixels": 3136
+    "shortest_edge": 224,
+    "longest_edge": 224
   },
   "temporal_patch_size": 2
 }
