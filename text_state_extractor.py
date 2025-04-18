@@ -86,9 +86,9 @@ for i, (state, actions) in enumerate(paths_to_states.items()):
         env.step(a)
     
     for a in range(3):
-        next_state = feature_extractor.evaluate(env.render(), action)
-        #next_state = feature_extractor.evaluate_text(action, env.agent_pos, env.agent_dir)
-        torch.save(next_state, f'image_tensors/pos={state[:2]}, dir={state[2]}, action={a}.pt')
+        #next_state = feature_extractor.evaluate(env.render(), action)
+        next_state = feature_extractor.evaluate_text(action, env.agent_pos, env.agent_dir)
+        torch.save(next_state, f'text_tensors/pos={state[:2]}, dir={state[2]}, action={a}.pt')
     print(f"[{i+1}/33] State: pos={state[:2]}, dir={state[2]}")
 
 

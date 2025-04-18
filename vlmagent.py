@@ -65,6 +65,19 @@ class VLMAgent:
         qry_output = self.model(qry=inputs)["qry_reps"]
         return qry_output
 
+    def evaluate_text(self, action, position, direction):
+        prompt = f"""You are in a 3x3 grid. Your position is given by {position}. Your direction is {direction} where 
+        0 corresponds to facing right, 1 is down, 2 is left, 3 is up. The current action that you will take from your state
+        is {action}. 0 corresponds to turn left, 1 corresponds to turn right, 2 corresponds to move forward in your curr direction.
+        I want you to answer what my position and environment looks like after this action is taken."""
+        inputs = self.processor(text=prompt,
+                        images=None,
+                        return_tensors="pt")
+    
+        inputs = {key: value.to('cpu') for key, value in inputs.items()}
+        tgt_output = self.model(tgt=inputs)["tgt_reps"]
+        return tgt_output
+
     def get_goal_state(self, image):
          # Image + Text -> Text
         prompt=f"""{vlm_image_tokens[QWEN2_VL]} You are in a minigrid environment. Given the current environment shown in the image
@@ -109,7 +122,8 @@ class AStarAgent:
         best_action = -1
         for action in range(3):
         #for action in range(env.action_space.n):
-            next_state = self.feature_extractor.evaluate(curr_state, action)
+            #next_state = self.feature_extractor.evaluate(curr_state, action)
+            next_state = self.feature_extractor.evaluate_text(action, env.agent_pos, env.agent_dir)
             dis = self.feature_extractor.compute_similarity(next_state, self.goal_state)
             print(action, dis, next_state)
             if(dis > min_distance):
