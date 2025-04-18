@@ -74,7 +74,7 @@ class VLMAgent:
                         images=None,
                         return_tensors="pt")
     
-        inputs = {key: value.to('cpu') for key, value in inputs.items()}
+        inputs = {key: value.to('cuda') for key, value in inputs.items()}
         tgt_output = self.model(tgt=inputs)["tgt_reps"]
         return tgt_output
 
@@ -114,7 +114,7 @@ class AStarAgent:
         return torch.norm(state - self.goal_state, p=2).item()
 
     def tensor_to_tuple(self, tensor):
-        return tuple(tensor.detach().cpu().numpy().flatten())
+        return tuple(tensor.detach().cuda().numpy().flatten())
 
     def get_action(self, env):
         curr_state = env.render()
