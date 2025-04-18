@@ -16,6 +16,7 @@ from tqdm import tqdm
 from minigrid.wrappers import FullyObsWrapper
 import pandas as pd
 from vlmagent import VLMAgent, AStarAgent
+import torch
 
 # Set up logging
 logging.basicConfig(filename='agent_training.log', level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -69,8 +70,25 @@ def test_agent_performance(agent, env, num_trials=5):
 print('hi')
 feature_extractor = VLMAgent()
 print('hello')
-goal_state = feature_extractor.get_goal_state(env_array.render())
-print('hola')
+# Save the rendered image to examine it
+rendered_image = env_array.render()
+from PIL import Image
+import os
+
+
+# # Create a directory for debug images if it doesn't exist
+# os.makedirs("debug_images", exist_ok=True)
+
+# # Save the raw rendered image
+# Image.fromarray(rendered_image).save("debug_images/rendered_image.png")
+# print(f"Rendered image saved to debug_images/rendered_image.png")
+# print(f"Image shape: {rendered_image.shape}, dtype: {rendered_image.dtype}")
+
+goal_state = feature_extractor.get_goal_state(rendered_image)
+torch.save(goal_state, 'predicted_goal.pt')
+
+
+
 agent = AStarAgent(feature_extractor, goal_state)
 print('done')
 

@@ -21,8 +21,8 @@ from PIL import Image
 class VLMAgent:
     def __init__(self):
         self.model_args = ModelArguments(
-        model_name='Qwen/Qwen2-VL-2B-Instruct',
-        checkpoint_path='TIGER-Lab/VLM2Vec-Qwen2VL-2B',
+        model_name='Qwen/Qwen2-VL-7B-Instruct',
+        checkpoint_path='TIGER-Lab/VLM2Vec-Qwen2VL-7B',
         pooling='last',
         normalize=True,
         model_backbone='qwen2_vl',
@@ -30,43 +30,58 @@ class VLMAgent:
 
         self.processor = load_processor(self.model_args)
         self.model = MMEBModel.load(self.model_args)
-        self.model = self.model.to('mps', dtype=torch.bfloat16)
+        self.model = self.model.to('cuda', dtype=torch.bfloat16)
         self.model.eval()
     
     def extract_state(self, image):
-        prompt="You are in a minigrid environment. You are given an image of what the environment looks like. Describe the environment in context to how far the player is from the goal state."
+        prompt="{vlm_image_tokens[QWEN2_VL]} You are in a minigrid environment. You are given an image of what the environment looks like. Describe the environment in context to how far the player is from the goal state."
+        
+         # Convert the image to PIL Image and ensure it's in the right format
+        pil_image = Image.fromarray(image)
+       
         inputs = self.processor(text=prompt,
-                        images=Image.fromarray(image),
+                        images=pil_image,
                         return_tensors="pt")
-        inputs = {key: value.to('mps') for key, value in inputs.items()}
+        inputs['pixel_values'] = inputs['pixel_values'].unsqueeze(0)
+        inputs['image_grid_thw'] = inputs['image_grid_thw'].unsqueeze(0)
         qry_output = self.model(qry=inputs)["qry_reps"]
-        return qry_output 
+        return qry_output
     
     def evaluate(self,image, action):
         
         # Image + Text -> Text
-        prompt=f"""You are in a minigrid environment. Given the current environment shown in the image
-        and the action {action}, I want you to answer what happens in the environment after this action is taken"""
+        prompt=f"""{vlm_image_tokens[QWEN2_VL]} You are in a minigrid environment. Given the current environment shown in the image
+        and the action {action}, I want you to answer what happens in the environment after this action is taken. As a refresher, here are what
+        the actions do: 0 - turn left, 1 - turn right, 2 - move forward."""
 
-        
+        # Convert the image to PIL Image and ensure it's in the right format
+        pil_image = Image.fromarray(image)
+       
         inputs = self.processor(text=prompt,
-                        images=Image.fromarray(image),
+                        images=pil_image,
                         return_tensors="pt")
-        inputs = {key: value.to('mps') for key, value in inputs.items()}
+        inputs['pixel_values'] = inputs['pixel_values'].unsqueeze(0)
+        inputs['image_grid_thw'] = inputs['image_grid_thw'].unsqueeze(0)
         qry_output = self.model(qry=inputs)["qry_reps"]
-        return qry_output 
+        return qry_output
 
     def get_goal_state(self, image):
          # Image + Text -> Text
-        prompt=f"""You are in a minigrid environment. Given the current environment shown in the image
+        prompt=f"""{vlm_image_tokens[QWEN2_VL]} You are in a minigrid environment. Given the current environment shown in the image
         ,I want you to answer what the environment looks like when the agent reaches the goal state."""
 
+        pil_image = Image.fromarray(image)
+        
+       
         inputs = self.processor(text=prompt,
-                        images=Image.fromarray(image),
+                        images=pil_image,
                         return_tensors="pt")
-        inputs = {key: value.to('mps') for key, value in inputs.items()}
+        inputs['pixel_values'] = inputs['pixel_values'].unsqueeze(0)
+        inputs['image_grid_thw'] = inputs['image_grid_thw'].unsqueeze(0)
         qry_output = self.model(qry=inputs)["qry_reps"]
-        return qry_output 
+        return qry_output
+            
+        
 
     def compute_similarity(self, curr, goal):
         return self.model.compute_similarity(curr, goal)
@@ -90,12 +105,14 @@ class AStarAgent:
 
     def get_action(self, env):
         curr_state = env.render()
-        min_distance = 1
+        min_distance = 0
         best_action = -1
-        for action in range(env.action_space.n):
+        for action in range(3):
+        #for action in range(env.action_space.n):
             next_state = self.feature_extractor.evaluate(curr_state, action)
             dis = self.feature_extractor.compute_similarity(next_state, self.goal_state)
-            if(dis < min_distance):
+            print(action, dis, next_state)
+            if(dis > min_distance):
                 min_distance = dis 
                 best_action = action 
 
